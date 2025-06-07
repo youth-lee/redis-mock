@@ -134,7 +134,9 @@ public class HashOperation extends AbstractOperation {
         byte[][] bytes = Arrays.stream(args, 1, args.length)
                 .map(e -> e.byteArray2hashKey())
                 .map(e -> {//
-                    return opt.flatMap(e1 -> Optional.ofNullable(e1.get(e))).map(Bytes::getBytes).orElse(null);
+                    return opt.flatMap(e1 -> Optional.ofNullable(e1.get(e)))
+                            .map(e1->e1.getBytes()) // jdk-17.0.4, Bytes::getBytes ? 不兼容的类型: 方法引用无效
+                            .orElse(null);
                 }).toArray(byte[][]::new);
         request.getOutputProtocol().writerMulti(bytes); //  null ?
     }

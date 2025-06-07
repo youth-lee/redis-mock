@@ -11,10 +11,10 @@
     <groupId>com.github.microwww</groupId>
     <artifactId>mock-redis</artifactId>
     <version>0.0.1-SNAPSHOTS</version>
-	<packaging>pom</packaging>
+    <packaging>pom</packaging>
 
     <modules>
         <module>core</module>
-		<module>mocker-redis-spring-boot-starter</module>
+        <module>mocker-redis-spring-boot-starter</module>
     </modules>
 </project>
