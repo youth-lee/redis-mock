@@ -121,9 +121,9 @@ public class PubSubOperationTest extends AbstractRedisTest {
         Assert.assertEquals(2, strings.size());
         System.out.println(strings);
         Assert.assertEquals(0, jedis.pubsubNumSub().size());
-        Map<String, String> val = jedis.pubsubNumSub("PUB3SUB", "PUBSUB4", "PUBSUB_not_exist");
+        Map<String, Long> val = jedis.pubsubNumSub("PUB3SUB", "PUBSUB4", "PUBSUB_not_exist");
         Assert.assertEquals(3, val.size());
-        Assert.assertArrayEquals(new String[]{"1", "1", "0"}, val.values().toArray(new String[]{}));
+        Assert.assertArrayEquals(new Long[]{1L, 1L, 0L}, val.values().toArray(new Long[]{}));
         Assert.assertArrayEquals(new String[]{"PUB3SUB", "PUBSUB4", "PUBSUB_not_exist"}, val.keySet().toArray(new String[]{}));
         Assert.assertEquals(4, jedis.pubsubNumPat().intValue());
         d2.countDown();

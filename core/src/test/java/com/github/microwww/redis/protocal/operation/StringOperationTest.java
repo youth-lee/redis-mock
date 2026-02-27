@@ -6,7 +6,7 @@ import static org.junit.Assert.*;
 
 import org.junit.Assert;
 import org.junit.Test;
-import redis.clients.jedis.BitOP;
+import redis.clients.jedis.args.BitOP;
 import redis.clients.jedis.params.SetParams;
 
 import java.util.List;
@@ -259,7 +259,7 @@ public class StringOperationTest extends AbstractRedisTest {
         String v = k1 + "-";
         jedis.setex(k1, 500L, v);
         assertEquals(v, jedis.get(k1));
-        assertEquals(500, jedis.ttl(k1).doubleValue(), 1.0);
+        assertEquals(500, jedis.ttl(k1), 1.0);
     }
 
     @Test

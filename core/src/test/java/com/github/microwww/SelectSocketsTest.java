@@ -5,6 +5,8 @@ import com.github.microwww.redis.logger.LogFactory;
 import com.github.microwww.redis.logger.Logger;
 import com.github.microwww.redis.protocal.jedis.JedisInputStream;
 import org.junit.Test;
+import redis.clients.jedis.ClientSetInfoConfig;
+import redis.clients.jedis.DefaultJedisClientConfig;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
@@ -15,17 +17,14 @@ import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.*;
 
 import static org.junit.Assert.assertEquals;
 
 public class SelectSocketsTest {
     public static final Logger log = LogFactory.getLogger(RedisServer.class);
 
-    @Test
+    @Test(timeout = 2000)
     public void testInputStream() throws Exception {
         ExecutorService pool = Executors.newCachedThreadPool();
         int count = 5;
@@ -43,6 +42,14 @@ public class SelectSocketsTest {
                         public void readableHandler(InputStream inputStream) throws IOException {
                             read(context, inputStream);
                         }
+
+                        private void read(ChannelContext context, InputStream inputStream) throws IOException {
+                            JedisInputStream in = new JedisInputStream(inputStream);
+                            Object read = in.readRedisData();
+                            RequestParams[] req = RequestParams.parseRedisData(read);
+                            bf.add(new String(req[0].isNotNull().getByteArray())); // 命令
+                            d1.countDown();
+                        }
                     };
                 }
 
@@ -51,13 +58,6 @@ public class SelectSocketsTest {
                     channelInputStream.write(buffer);
                 }
 
-                private void read(ChannelContext context, InputStream inputStream) throws IOException {
-                    JedisInputStream in = new JedisInputStream(inputStream);
-                    Object read = in.readRedisData();
-                    RequestParams[] req = RequestParams.parseRedisData(read);
-                    bf.add(new String(req[0].isNotNull().getByteArray())); // 命令
-                    d1.countDown();
-                }
             };
         });
         sockets.bind("localhost", 0);
@@ -68,7 +68,10 @@ public class SelectSocketsTest {
         for (int i = 0; i < count; i++) {
             pool.execute(() -> {
                 try {
-                    Jedis jedis = new Jedis(ss.getHostString(), ss.getPort(), 10000);
+                    int timeout = 10_000;
+                    Jedis jedis = new Jedis(ss.getHostString(), ss.getPort(), DefaultJedisClientConfig.builder()
+                            .connectionTimeoutMillis(timeout).socketTimeoutMillis(timeout)
+                            .clientSetInfoConfig(ClientSetInfoConfig.DISABLED).build());
                     d2.countDown();
                     jedis.ping();
                 } catch (Exception e) {

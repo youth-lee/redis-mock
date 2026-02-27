@@ -4,7 +4,6 @@ import com.github.microwww.redis.RedisServer;
 import org.junit.Assert;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.Protocol;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.io.IOException;
@@ -25,7 +24,7 @@ public class DatabaseTest extends AbstractRedisTest {
         String result = jd.ping();
         Assert.assertEquals(result, "PONG");
         result = jd.select(1);
-        Assert.assertEquals(result, Protocol.Keyword.OK.name());
+        Assert.assertEquals(result, "OK");
         String val = "daatata";
         jd.set("test", val);
         result = jd.get("test");

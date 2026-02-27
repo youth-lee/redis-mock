@@ -39,10 +39,11 @@ public class ConnectionOperationTest extends AbstractRedisTest {
         assertNull(s1);
     }
 
-    @Test
-    public void testQuit() {
-        String s = jedis.quit();
-        assertEquals("OK", s);
-        jedis.close();
-    }
+    // TODO: 7+ 取消了改命令
+    //@Test
+    //public void testQuit() {
+    //    String s = jedis.quit();
+    //    assertEquals("OK", s);
+    //    jedis.close();
+    //}
 }

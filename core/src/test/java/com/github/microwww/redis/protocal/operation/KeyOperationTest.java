@@ -2,7 +2,7 @@ package com.github.microwww.redis.protocal.operation;
 
 import com.github.microwww.AbstractRedisTest;
 import org.junit.Test;
-import redis.clients.jedis.ScanResult;
+import redis.clients.jedis.resps.ScanResult;
 import redis.clients.jedis.exceptions.JedisDataException;
 import redis.clients.jedis.params.SetParams;
 

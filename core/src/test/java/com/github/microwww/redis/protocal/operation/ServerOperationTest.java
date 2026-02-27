@@ -2,10 +2,12 @@ package com.github.microwww.redis.protocal.operation;
 
 import com.github.microwww.AbstractRedisTest;
 import org.junit.Test;
+import redis.clients.jedis.Connection;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.args.FlushMode;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import java.lang.reflect.Field;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 import java.util.List;
@@ -98,7 +100,10 @@ public class ServerOperationTest extends AbstractRedisTest {
     public void testClient() throws Exception {
         // jedis = connection();
         String clients = jedis.clientList();
-        Socket socket = jedis.getClient().getSocket();
+        Connection client = jedis.getClient();
+        Field mth = client.getClass().getDeclaredField("socket");
+        mth.setAccessible(true);
+        Socket socket = (Socket) mth.get(client);
         InetSocketAddress add = (InetSocketAddress) socket.getLocalSocketAddress();
         String ip = add.getHostName() + ":" + add.getPort();
         assertTrue(clients.contains(ip));

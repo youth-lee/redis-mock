@@ -5,13 +5,13 @@ import com.github.microwww.AbstractRedisTest;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import redis.clients.jedis.ScanResult;
-import redis.clients.jedis.Tuple;
-import redis.clients.jedis.ZParams;
+import redis.clients.jedis.params.ZParams;
+import redis.clients.jedis.resps.ScanResult;
+import redis.clients.jedis.resps.Tuple;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class SortedSetOperationTest extends AbstractRedisTest {
 
@@ -78,7 +78,7 @@ public class SortedSetOperationTest extends AbstractRedisTest {
         long count = jedis.zadd(r[0], map);
         assertEquals(count, map.size());
 
-        Set<String> zrange = jedis.zrange(r[0], 10, 100);
+        List<String> zrange = jedis.zrange(r[0], 10, 100);
         assertEquals(0, zrange.size());
 
         zrange = jedis.zrange(r[0], 0, -1);
@@ -87,7 +87,7 @@ public class SortedSetOperationTest extends AbstractRedisTest {
         zrange = jedis.zrange(r[0], -5, -1);
         assertEquals(5, zrange.size());
 
-        Set<Tuple> val = jedis.zrangeWithScores(r[0], 0, -1);
+        List<Tuple> val = jedis.zrangeWithScores(r[0], 0, -1);
         assertEquals(map.size(), val.size());
         assertEquals(1, val.iterator().next().getScore(), 0.0000000001);
     }
@@ -102,11 +102,11 @@ public class SortedSetOperationTest extends AbstractRedisTest {
         long count = jedis.zadd(r[0], map);
         assertEquals(count, map.size());
 
-        Set<String> range = jedis.zrangeByScore(r[0], 5, 6);
+        List<String> range = jedis.zrangeByScore(r[0], 5, 6);
         assertEquals(10, range.size());
         range = jedis.zrangeByScore(r[0], 5, 6, 1, 2);
         assertEquals(2, range.size());
-        Set<Tuple> rangeScore = jedis.zrangeByScoreWithScores(r[0], 5, 6, 1, 2);
+        List<Tuple> rangeScore = jedis.zrangeByScoreWithScores(r[0], 5, 6, 1, 2);
         assertEquals(2, range.size());
     }
 
@@ -213,7 +213,7 @@ public class SortedSetOperationTest extends AbstractRedisTest {
     public void testZrevrange() {
         String[] r = Server.random(10);
         {
-            Set<String> range = jedis.zrevrange(r[0], 1, 5);
+            List<String> range = jedis.zrevrange(r[0], 1, 5);
             assertEquals(0, range.size());
         }
         Map<String, Double> map = new HashMap<>();
@@ -222,17 +222,17 @@ public class SortedSetOperationTest extends AbstractRedisTest {
         }
         jedis.zadd(r[0], map);
         {
-            Set<String> range = jedis.zrevrange(r[0], 1, 5);
+            List<String> range = jedis.zrevrange(r[0], 1, 5);
             assertEquals(5, range.size());
             assertEquals(r[r.length - 2], range.iterator().next());
         }
         {
-            Set<String> range = jedis.zrevrange(r[0], -6, -3);
+            List<String> range = jedis.zrevrange(r[0], -6, -3);
             assertEquals(4, range.size());
             assertEquals(r[r.length - 6 + 1], range.iterator().next());
         }
         {
-            Set<Tuple> range = jedis.zrevrangeWithScores(r[0], -6, -3);
+            List<Tuple> range = jedis.zrevrangeWithScores(r[0], -6, -3);
             assertEquals(4, range.size());
             assertEquals(5, range.iterator().next().getScore(), 0.000001);
         }
@@ -242,7 +242,7 @@ public class SortedSetOperationTest extends AbstractRedisTest {
     public void testZrevrangebyscore() {
         String[] r = Server.random(10);
         {
-            Set<String> range = jedis.zrevrangeByScore(r[0], 1, 5);
+            List<String> range = jedis.zrevrangeByScore(r[0], 1, 5);
             assertEquals(0, range.size());
         }
         Map<String, Double> map = new HashMap<>();
@@ -251,15 +251,15 @@ public class SortedSetOperationTest extends AbstractRedisTest {
         }
         jedis.zadd(r[0], map);
         {
-            Set<String> range = jedis.zrevrangeByScore(r[0], 4, 1);
+            List<String> range = jedis.zrevrangeByScore(r[0], 4, 1);
             assertEquals(4, range.size());
         }
         {
-            Set<String> range = jedis.zrevrangeByScore(r[0], "(4", "(1");
+            List<String> range = jedis.zrevrangeByScore(r[0], "(4", "(1");
             assertEquals(2, range.size());
         }
         {
-            Set<String> range = jedis.zrevrangeByScore(r[0], 400, 100);
+            List<String> range = jedis.zrevrangeByScore(r[0], 400, 100);
             assertEquals(0, range.size());
         }
     }

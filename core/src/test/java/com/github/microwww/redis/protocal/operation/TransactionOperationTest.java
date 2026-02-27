@@ -50,7 +50,8 @@ public class TransactionOperationTest extends AbstractRedisTest {
         try {
             tr.exec();
             Assert.fail("Not hear");
-        } catch (JedisDataException e) {
+            // TODO: 3+  JedisDataException  , 7+  IllegalStateException
+        } catch (JedisDataException | IllegalStateException e) {
             Assert.assertNotNull(e);
         }
     }

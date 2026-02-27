@@ -5,7 +5,7 @@ import com.github.microwww.AbstractRedisTest;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
-import redis.clients.jedis.ScanResult;
+import redis.clients.jedis.resps.ScanResult;
 
 import java.util.List;
 import java.util.Set;
@@ -77,7 +77,7 @@ public class SetOperationTest extends AbstractRedisTest {
         //       3 4 5 6 7
         scard = jedis.sdiffstore(r[9], r[0], r[1]);
         assertEquals(3, scard);
-        assertEquals(3, jedis.scard(r[9]).intValue());
+        assertEquals(3, jedis.scard(r[9]));
     }
 
     @Test
@@ -132,7 +132,7 @@ public class SetOperationTest extends AbstractRedisTest {
         {
             scard = jedis.sinterstore(target, r[0], r[1]);
             assertEquals(3, scard);
-            assertEquals(3, jedis.scard(target).intValue());
+            assertEquals(3, jedis.scard(target));
             Set<String> ms = jedis.smembers(target);
             assertTrue(ms.contains(r[3]));
             assertTrue(ms.contains(r[4]));
@@ -148,7 +148,7 @@ public class SetOperationTest extends AbstractRedisTest {
             assertTrue(ms.contains(r[4]));
             scard = jedis.sinterstore(target, r[0]); // over write
             assertEquals(5, scard);
-            assertEquals(5, jedis.scard(target).intValue());
+            assertEquals(5, jedis.scard(target));
         }
     }
 
@@ -319,7 +319,7 @@ public class SetOperationTest extends AbstractRedisTest {
             assertEquals(0, meb);
             meb = jedis.sunionstore(r[0], r[1], r[2]);
             assertEquals(0, meb);
-            assertEquals(0, jedis.scard(r[0]).intValue());
+            assertEquals(0, jedis.scard(r[0]));
         }
         // 0 1 2 3 4
         for (int i = 0; i < 5; i++) {
@@ -336,18 +336,18 @@ public class SetOperationTest extends AbstractRedisTest {
         {
             long meb = jedis.sunionstore(r[8], r[1], r[3]);
             assertEquals(5, meb);
-            assertEquals(5, jedis.scard(r[8]).intValue());
+            assertEquals(5, jedis.scard(r[8]));
 
         }
         {
             long meb = jedis.sunionstore(r[9], r[0]);
             assertEquals(5, meb);
-            assertEquals(5, jedis.scard(r[9]).intValue());
+            assertEquals(5, jedis.scard(r[9]));
         }
         {
             long meb = jedis.sunionstore(r[9], r[1], r[2], r[3]);
             assertEquals(8, meb);
-            assertEquals(8, jedis.scard(r[9]).intValue());
+            assertEquals(8, jedis.scard(r[9]));
             assertTrue(jedis.smembers(r[9]).contains(r[7]));
             assertFalse(jedis.smembers(r[9]).contains(r[1]));
         }
@@ -356,7 +356,7 @@ public class SetOperationTest extends AbstractRedisTest {
             long meb = jedis.sunionstore(r[9], r[2]);
             assertTrue(jedis.ttl(r[9]) < 0);
             assertEquals(5, meb);
-            assertEquals(5, jedis.scard(r[9]).intValue());
+            assertEquals(5, jedis.scard(r[9]));
             assertTrue(jedis.smembers(r[9]).contains(r[7]));
         }
     }

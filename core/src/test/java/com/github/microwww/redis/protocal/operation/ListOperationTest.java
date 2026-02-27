@@ -3,7 +3,7 @@ package com.github.microwww.redis.protocal.operation;
 import com.github.microwww.AbstractRedisTest;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
-import redis.clients.jedis.ListPosition;
+import redis.clients.jedis.args.ListPosition;
 import redis.clients.jedis.exceptions.JedisDataException;
 
 import java.io.IOException;
@@ -165,15 +165,15 @@ public class ListOperationTest extends AbstractRedisTest {
         assertEquals(r[4], jedis.lindex(r[0], 2));
 
         //    public void llen() {
-        assertEquals(3, jedis.llen(r[0]).intValue());
+        assertEquals(3, jedis.llen(r[0]));
     }
 
     @Test
     public void llen() {
         String[] r = Server.random(8);
-        assertEquals(0, jedis.llen(r[0]).intValue());
+        assertEquals(0, jedis.llen(r[0]));
         jedis.rpush(r[0], r[6]);
-        assertEquals(1, jedis.llen(r[0]).intValue());
+        assertEquals(1, jedis.llen(r[0]));
     }
 
     @Test
@@ -191,9 +191,9 @@ public class ListOperationTest extends AbstractRedisTest {
     @Test
     public void lpushx() {
         String[] r = Server.random(8);
-        assertEquals(0, jedis.llen(r[0]).intValue());
+        assertEquals(0, jedis.llen(r[0]));
         jedis.lpushx(r[0], r[6]);
-        assertEquals(0, jedis.llen(r[0]).intValue());
+        assertEquals(0, jedis.llen(r[0]));
         jedis.lpush(r[0], r[1]);
         jedis.lpushx(r[0], r[6]);
         assertEquals(r[6], jedis.lpop(r[0]));
@@ -204,7 +204,7 @@ public class ListOperationTest extends AbstractRedisTest {
         String[] r = Server.random(8);
         assertEquals(0, jedis.lrange(r[0], 0, -1).size());
         jedis.rpush(r[0], r[1], r[2], r[3], r[4], r[5], r[6]);
-        assertEquals(6, jedis.llen(r[0]).intValue());
+        assertEquals(6, jedis.llen(r[0]));
         assertEquals(r[3], jedis.lrange(r[0], 2, 2).get(0));
         assertEquals(6, jedis.lrange(r[0], 0, -1).size());
     }
@@ -214,7 +214,7 @@ public class ListOperationTest extends AbstractRedisTest {
         String[] r = Server.random(8);
         assertEquals(0, jedis.lrange(r[0], 0, -1).size());
         jedis.rpush(r[0], r[1], r[2], r[3], r[4], r[5], r[6]);
-        assertEquals(6, jedis.llen(r[0]).intValue());
+        assertEquals(6, jedis.llen(r[0]));
         assertEquals(r[3], jedis.lrange(r[0], 2, 2).get(0));
         assertEquals(6, jedis.lrange(r[0], 0, -1).size());
     }
@@ -227,10 +227,10 @@ public class ListOperationTest extends AbstractRedisTest {
         jedis.rpush(r[0], r[1], r[2], r[3], r[4], r[5], r[6]);
         ok = jedis.ltrim(r[0], 1, -1);
         assertEquals("OK", ok);
-        assertEquals(5, jedis.llen(r[0]).intValue());
+        assertEquals(5, jedis.llen(r[0]));
         ok = jedis.ltrim(r[0], 1, 2);
         assertEquals("OK", ok);
-        assertEquals(2, jedis.llen(r[0]).intValue());
+        assertEquals(2, jedis.llen(r[0]));
         assertEquals(r[3], jedis.lpop(r[0]));
         assertEquals(r[4], jedis.lpop(r[0]));
     }
@@ -248,9 +248,9 @@ public class ListOperationTest extends AbstractRedisTest {
     @Test
     public void rpushx() {
         String[] r = Server.random(8);
-        assertEquals(0, jedis.llen(r[0]).intValue());
+        assertEquals(0, jedis.llen(r[0]));
         jedis.rpushx(r[0], r[6]);
-        assertEquals(0, jedis.llen(r[0]).intValue());
+        assertEquals(0, jedis.llen(r[0]));
         jedis.lpush(r[0], r[1]);
         jedis.rpushx(r[0], r[6]);
         assertEquals(r[1], jedis.lpop(r[0]));
