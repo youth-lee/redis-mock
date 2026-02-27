@@ -6,18 +6,22 @@ import com.github.microwww.redis.util.NotNull;
 import java.io.Closeable;
 import java.io.IOException;
 import java.nio.channels.SocketChannel;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class RequestSession extends ConcurrentHashMap<String, Object> implements Closeable {
     public static final String ADDRESS = RequestSession.class.getName() + ".ADDRESS";
     public static final String NAME = RequestSession.class.getName() + ".NAME";
+    public static final String INFO = RequestSession.class.getName() + ".INFO";
+    private static final AtomicInteger inc = new AtomicInteger(1);
     private final SocketChannel channel;
     private int database = 0;
+    public final int ID;
 
     public RequestSession(SocketChannel channel) {
         this.channel = channel;
-        //this.put(ADDRESS, RedisServer.addressKey(channel));
+        ID = inc.getAndIncrement();
     }
 
     public SocketChannel getChannel() {
@@ -40,6 +44,24 @@ public class RequestSession extends ConcurrentHashMap<String, Object> implements
 
     public void setName(String name) {
         this.put(NAME, name);
+    }
+
+    @NotNull
+    public Map<String, String> getInfo() {
+        Map<String, String> info = (Map<String, String>) this.get(INFO);
+        if (info == null) {
+            return Collections.EMPTY_MAP;
+        }
+        return Collections.unmodifiableMap(info);
+    }
+
+    public void setInfo(String key, String value) {
+        Map<String, String> info = (Map<String, String>) this.get(INFO);
+        if(Objects.isNull(info)){
+            info = new HashMap<>();
+            this.put(INFO, info);
+        }
+        info.put(key, value);
     }
 
     @NotNull

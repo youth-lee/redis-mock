@@ -8,6 +8,7 @@ import com.github.microwww.redis.logger.LogFactory;
 import com.github.microwww.redis.logger.Logger;
 import com.github.microwww.redis.protocal.AbstractOperation;
 import com.github.microwww.redis.protocal.RedisRequest;
+import com.github.microwww.redis.protocal.RequestSession;
 import com.github.microwww.redis.protocal.jedis.Protocol;
 
 import java.io.IOException;
@@ -80,6 +81,13 @@ public class ServerOperation extends AbstractOperation {
     }
 
     public enum Client {
+        ID {
+            @Override
+            public void operation(RedisRequest request) throws IOException {
+                int id = request.getSessions().ID;
+                request.getOutputProtocol().writer(id);
+            }
+        },
         GETNAME {
             @Override
             public void operation(RedisRequest request) throws IOException {
@@ -111,7 +119,12 @@ public class ServerOperation extends AbstractOperation {
                 for (ChannelContext client : clients) {
                     try {
                         InetSocketAddress addr = client.getRemoteAddress();
+                        RequestSession ses = client.getSessions();
+                        ss.append("id=").append(ses.ID).append("\n");
                         ss.append("addr=").append(addr.getHostName()).append(":").append(addr.getPort()).append("\n");
+                        ses.getInfo().forEach((k, v) -> {
+                            ss.append(k + "=").append(v).append("\n");
+                        });
                     } catch (Exception ex) {// ignore
                         log.debug("List client error", ex);
                     }
@@ -126,6 +139,24 @@ public class ServerOperation extends AbstractOperation {
                 String name = request.getParams()[1].getByteArray2string();
                 request.getSessions().setName(name);
                 request.getOutputProtocol().writer(name);
+            }
+        },
+        SETINFO {
+            @Override
+            public void operation(RedisRequest request) throws IOException {
+                request.expectArgumentsCount(3);
+                String attr = request.getParams()[1].getByteArray2string();
+                request.getSessions().setInfo(attr, request.getParams()[2].getByteArray2string());
+                request.getOutputProtocol().writer(Protocol.Keyword.OK.raw);
+            }
+        },
+        INFO {
+            @Override
+            public void operation(RedisRequest request) throws IOException {
+                request.expectArgumentsCount(3);
+                String attr = request.getParams()[1].getByteArray2string();
+                request.getSessions().setInfo(attr, request.getParams()[2].getByteArray2string());
+                request.getOutputProtocol().writer(Protocol.Keyword.OK.raw);
             }
         };
 
