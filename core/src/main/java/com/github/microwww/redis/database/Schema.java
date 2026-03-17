@@ -25,6 +25,7 @@ public class Schema implements Closeable {
     public static final int DEFAULT_SCHEMA_SIZE = 16;
     private static final AbstractOperation[] SUPPORT_OPERATION = new AbstractOperation[] {
             new ConnectionOperation(),
+            new GeoOperation(),
             new HashOperation(),
             new HyperLogLog(),
             new KeyOperation(),

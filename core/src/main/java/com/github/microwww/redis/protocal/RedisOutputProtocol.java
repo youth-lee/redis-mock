@@ -65,6 +65,11 @@ public class RedisOutputProtocol {
         writerMulti(args);
     }
 
+    public void writeArrayHeader(int count) throws IOException {
+        out.write(Protocol.ASTERISK_BYTE);
+        out.writeIntCrLf(count);
+    }
+
     public void writerMulti(byte[]... args) throws IOException {
         writerComplexData(Protocol.ASTERISK_BYTE, args);
     }
