@@ -25,6 +25,15 @@ public class StringOperationTest extends AbstractRedisTest {
     }
 
     @Test
+    public void testGetdel() {
+        String key = UUID.randomUUID().toString();
+        assertNull(jedis.getDel(key));
+        jedis.set(key, "v1");
+        assertEquals("v1", jedis.getDel(key));
+        assertNull(jedis.get(key));
+    }
+
+    @Test
     public void testAppend() {
         String key = UUID.randomUUID().toString();
         Long len = jedis.append(key, key);
@@ -128,6 +137,13 @@ public class StringOperationTest extends AbstractRedisTest {
     }
 
     @Test
+    public void testSubstrAlias() {
+        String key = UUID.randomUUID().toString();
+        jedis.set(key, "1234567890");
+        assertEquals("678", jedis.substr(key, 5, 7));
+    }
+
+    @Test
     public void testGetset() {
         String key = UUID.randomUUID().toString();
         String val = jedis.getSet(key, "1");
@@ -220,6 +236,21 @@ public class StringOperationTest extends AbstractRedisTest {
         assertEquals(k1, jedis.get(k1));
         Thread.sleep(500L);
         assertNull(jedis.get(k1));
+    }
+
+    @Test
+    public void testGetex() throws InterruptedException {
+        String key = UUID.randomUUID().toString();
+        jedis.set(key, "v");
+        // EX seconds via GETEX
+        assertEquals("v", jedis.get(key)); // value still there
+        redis.clients.jedis.params.GetExParams params = new redis.clients.jedis.params.GetExParams();
+        params.ex(1);
+        String val = jedis.getEx(key, params);
+        assertEquals("v", val);
+        assertEquals("v", jedis.get(key));
+        Thread.sleep(1100);
+        assertNull(jedis.get(key));
     }
 
     @Test

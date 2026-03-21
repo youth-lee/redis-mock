@@ -252,6 +252,33 @@ public class HashOperationTest extends AbstractRedisTest {
         }
     }
 
+    @Test
+    public void hstrlen() {
+        String key = UUID.randomUUID().toString();
+        String field = UUID.randomUUID().toString();
+        assertEquals(0, jedis.hstrlen(key, field));
+        jedis.hset(key, field, "abc");
+        assertEquals(3, jedis.hstrlen(key, field));
+        assertEquals(0, jedis.hstrlen(key, field + "x"));
+    }
+
+    @Test
+    public void hrandfield() {
+        String key = UUID.randomUUID().toString();
+        assertNull(jedis.hrandfield(key));
+        jedis.hset(key, "f1", "v1");
+        jedis.hset(key, "f2", "v2");
+        String f = jedis.hrandfield(key);
+        assertNotNull(f);
+
+        // HRANDFIELD key count WITHVALUES
+        List<Map.Entry<String,String>> list = jedis.hrandfieldWithValues(key, 2);
+        assertEquals(2, list.size());
+        for (Map.Entry<String,String> e : list) {
+            assertTrue(e.getKey().equals("f1") || e.getKey().equals("f2"));
+        }
+    }
+
     @Test(timeout = 3000)
     public void testHscan() {
         String[] r = Server.random(25);

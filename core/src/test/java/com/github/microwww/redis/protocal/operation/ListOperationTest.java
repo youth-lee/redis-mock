@@ -3,10 +3,13 @@ package com.github.microwww.redis.protocal.operation;
 import com.github.microwww.AbstractRedisTest;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.args.ListDirection;
 import redis.clients.jedis.args.ListPosition;
 import redis.clients.jedis.exceptions.JedisDataException;
+import redis.clients.jedis.params.LPosParams;
 
 import java.io.IOException;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -92,9 +95,12 @@ public class ListOperationTest extends AbstractRedisTest {
             try {
                 Jedis jedis = connection();
                 List<String> pop = jedis.blpop(1, r[0], r[1], r[3]);
+                // 6.0.0+ NULL / empty list
+                if(pop == null){
+                    queue.put(Collections.emptyList());
+                }
                 queue.put(pop);
             } catch (Exception ex) {
-                assertNotNull(ex);
             }
         }).start();
         List<String> take = queue.take();
@@ -185,6 +191,25 @@ public class ListOperationTest extends AbstractRedisTest {
     }
 
     @Test
+    public void lmove() {
+        String[] r = Server.random(8);
+        String src = r[0];
+        String dest = r[1];
+        jedis.rpush(src, "a", "b", "c");
+        // LEFT RIGHT : pop left (a), push right -> dest: a
+        String moved = jedis.lmove(src, dest, ListDirection.LEFT, ListDirection.RIGHT);
+        assertEquals("a", moved);
+        assertEquals("b", jedis.lindex(src, 0));
+        assertEquals("a", jedis.lindex(dest, 0));
+
+        // RIGHT LEFT : pop right (c), push left -> dest: c, a
+        moved = jedis.lmove(src, dest, ListDirection.RIGHT, ListDirection.LEFT);
+        assertEquals("c", moved);
+        assertEquals("c", jedis.lindex(dest, 0));
+        assertEquals("a", jedis.lindex(dest, 1));
+    }
+
+    @Test
     public void lpush() {// up-up-up
     }
 
@@ -254,5 +279,17 @@ public class ListOperationTest extends AbstractRedisTest {
         jedis.lpush(r[0], r[1]);
         jedis.rpushx(r[0], r[6]);
         assertEquals(r[1], jedis.lpop(r[0]));
+    }
+
+    @Test
+    public void lpos() {
+        String[] r = Server.random(8);
+        String key = r[0];
+        jedis.rpush(key, "a", "b", "a", "a", "c");
+        assertEquals(Long.valueOf(0), jedis.lpos(key, "a"));
+        Long idx = jedis.lpos(key, "a", LPosParams.lPosParams().rank(2));
+        assertEquals(Long.valueOf(2), idx);
+        List<Long> idxs = jedis.lpos(key, "a", LPosParams.lPosParams().rank(1), 3);
+        assertEquals(3, idxs.size());
     }
 }
