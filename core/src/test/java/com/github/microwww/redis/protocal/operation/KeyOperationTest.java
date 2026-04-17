@@ -4,6 +4,7 @@ import com.github.microwww.AbstractRedisTest;
 import org.junit.Test;
 import redis.clients.jedis.resps.ScanResult;
 import redis.clients.jedis.exceptions.JedisDataException;
+import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.params.SetParams;
 
 import java.util.List;
@@ -288,6 +289,7 @@ public class KeyOperationTest extends AbstractRedisTest {
     public void testScan() {
         String[] r = Server.random(25);
         jedis.select(7);
+        jedis.flushDB(); // 清理数据库，避免其他测试遗留数据影响
         for (int i = 0; i < r.length; i++) {
             jedis.set(r[i], i + "", new SetParams().nx().ex(10L));
         }
@@ -302,5 +304,37 @@ public class KeyOperationTest extends AbstractRedisTest {
             }
         }
         assertEquals(25, size);
+    }
+
+    /**
+     * 测试 SCAN 命令的 MATCH 参数过滤功能
+     */
+    @Test
+    public void testScanWithMatch() {
+        jedis.select(7);
+        jedis.flushDB();
+        
+        // 创建多个不同前缀的 key
+        jedis.set("user:profile:001", "value1");
+        jedis.set("user:profile:002", "value2");
+        jedis.set("user:settings", "value3");
+        jedis.set("user:session:001", "value4");
+        jedis.set("product:item:001", "value5");
+        
+        // 使用 MATCH 过滤
+        ScanParams params = new ScanParams();
+        params.match("user:profile:*");
+        
+        ScanResult<String> result = jedis.scan("0", params);
+        
+        // 只应该返回匹配 user:profile:* 的 key
+        for (String key : result.getResult()) {
+            assertTrue("Key should match pattern user:profile:*",
+                key.startsWith("user:profile:"));
+        }
+        
+        // user:settings 不应该被返回
+        assertFalse("user:settings should not be in results",
+            result.getResult().contains("user:settings"));
     }
 }

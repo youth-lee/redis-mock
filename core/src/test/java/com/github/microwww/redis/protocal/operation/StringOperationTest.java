@@ -347,4 +347,58 @@ public class StringOperationTest extends AbstractRedisTest {
             assertEquals(v.length(), nx);
         }
     }
+
+    /**
+     * 测试对非 String 类型的 key 执行 GET 命令时返回 WRONGTYPE 错误
+     */
+    @Test
+    public void testGetOnWrongType() {
+        String key = UUID.randomUUID().toString();
+        // 先设置一个 SortedSet 类型的 key
+        jedis.zadd(key, 1.0, "member1");
+        // 尝试用 GET 命令读取，应该返回 WRONGTYPE 错误
+        try {
+            jedis.get(key);
+            fail("Should throw JedisDataException for WRONGTYPE");
+        } catch (redis.clients.jedis.exceptions.JedisDataException e) {
+            assertTrue("Error message should contain WRONGTYPE",
+                e.getMessage().contains("WRONGTYPE"));
+        }
+    }
+
+    /**
+     * 测试对非 String 类型的 key 执行 STRLEN 命令时返回 WRONGTYPE 错误
+     */
+    @Test
+    public void testStrlenOnWrongType() {
+        String key = UUID.randomUUID().toString();
+        // 先设置一个 List 类型的 key
+        jedis.lpush(key, "item1");
+        // 尝试用 STRLEN 命令读取，应该返回 WRONGTYPE 错误
+        try {
+            jedis.strlen(key);
+            fail("Should throw JedisDataException for WRONGTYPE");
+        } catch (redis.clients.jedis.exceptions.JedisDataException e) {
+            assertTrue("Error message should contain WRONGTYPE",
+                e.getMessage().contains("WRONGTYPE"));
+        }
+    }
+
+    /**
+     * 测试对非 String 类型的 key 执行 GETDEL 命令时返回 WRONGTYPE 错误
+     */
+    @Test
+    public void testGetdelOnWrongType() {
+        String key = UUID.randomUUID().toString();
+        // 先设置一个 Hash 类型的 key
+        jedis.hset(key, "field1", "value1");
+        // 尝试用 GETDEL 命令读取，应该返回 WRONGTYPE 错误
+        try {
+            jedis.getDel(key);
+            fail("Should throw JedisDataException for WRONGTYPE");
+        } catch (redis.clients.jedis.exceptions.JedisDataException e) {
+            assertTrue("Error message should contain WRONGTYPE",
+                e.getMessage().contains("WRONGTYPE"));
+        }
+    }
 }

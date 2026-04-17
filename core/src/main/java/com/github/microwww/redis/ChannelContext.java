@@ -88,7 +88,8 @@ public class ChannelContext {
         if (read < 0) {
             throw new IOException("EOF");
         }
-        buffer.flip();
+        // 使用 Buffer.flip() 兼容 Java 8
+        ((java.nio.Buffer) buffer).flip();
         return buffer.asReadOnlyBuffer();
     }
 

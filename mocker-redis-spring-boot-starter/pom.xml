@@ -51,7 +51,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <spring-boot.version>2.2.9.RELEASE</spring-boot.version>
-        <redis-serve.version>0.3.5</redis-serve.version>
+        <redis-serve.version>0.3.6</redis-serve.version>
     </properties>
 
     <dependencies>

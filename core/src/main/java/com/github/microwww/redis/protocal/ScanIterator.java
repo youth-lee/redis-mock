@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Pattern;
 
 public class ScanIterator<T> {
 
@@ -41,12 +42,19 @@ public class ScanIterator<T> {
 
     public void continueWrite(Iterator<T> iterator, Function<T, byte[]>... parses) throws IOException {
         int i = this.cursor;
+        Pattern pattern = spm.getPattern();
 
         List<byte[]> list = new ArrayList<>();
-        for (int j = 0; j < spm.getCount() && iterator.hasNext(); j++) {
+        while (iterator.hasNext() && list.size() < spm.getCount()) {
             T next = iterator.next();
-            for (Function<T, byte[]> parse : parses) {
-                list.add(parse.apply(next));
+            // 使用第一个 parse 函数获取用于匹配的字节数组
+            byte[] bytes = parses[0].apply(next);
+            String keyStr = new String(bytes);
+            // 使用 MATCH pattern 过滤
+            if (pattern.matcher(keyStr).matches()) {
+                for (Function<T, byte[]> parse : parses) {
+                    list.add(parse.apply(next));
+                }
             }
             i++;
         }
